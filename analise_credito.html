@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Crédito Inteligente</title>
+    <link rel="icon" href="https://placehold.co/64x64/fce500/0033a0?text=AC" type="image/png">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        /* Definição das fontes Montserrat (arquivos locais) */
+        @font-face {
+            font-family: 'Montserrat';
+            src: url('assets/fonts/Montserrat-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Montserrat';
+            src: url('assets/fonts/Montserrat-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Montserrat';
+            src: url('assets/fonts/Montserrat-Light.ttf') format('truetype');
+            font-weight: 300;
+            font-style: normal;
+        }
+
+        /* Variáveis de Cores e Fontes */
+        :root {
+            --cor_primaria_amarelo: #fce500;
+            --cor_secundaria_azul: #0033a0;
+            --fundo_claro: #f0f2f5;
+            --cor_texto: #343a40;
+            --fundo_cartao: #ffffff;
+            --score-bad: #dc3545;
+            --score-regular: #ffc107;
+            --score-good: #198754;
+            --score-excellent: #0d6efd;
+        }
+
+        /* Estilos Gerais */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--fundo_claro);
+            color: var(--cor_texto);
+        }
+
+        /* Estilos do Header */
+        .fundo_amarelo {
+            background-color: var(--cor_primaria_amarelo);
+        }
+
+        .fundo_azul {
+            background-color: var(--cor_secundaria_azul);
+        }
+
+        .texto_amarelo {
+            color: var(--cor_primaria_amarelo);
+        }
+
+        .texto_azul {
+            color: var(--cor_secundaria_azul);
+        }
+
+        .botao_amarelo {
+            background-color: var(--cor_primaria_amarelo);
+            color: var(--cor_secundaria_azul);
+            border: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .botao_amarelo:hover {
+            opacity: 0.9;
+            color: var(--cor_secundaria_azul);
+        }
+
+        .link_animado {
+            transition: opacity 0.3s ease;
+        }
+
+        .link_animado:hover {
+            opacity: 0.8;
+        }
+
+        .navbar .nav-link, .navbar .dropdown-item {
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar .nav-link:hover, .navbar .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Estilos da Análise de Crédito */
+        .cartao_principal {
+            background-color: var(--fundo_cartao);
+            border-radius: 1rem;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .secao_formulario {
+            padding: 2.5rem;
+        }
+
+        .secao_resultado {
+            background-color: #f8f9fa;
+            padding: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .circulo_score {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: background-color 0.5s ease;
+        }
+
+        .circulo_score .valor_score {
+            font-size: 4rem;
+            font-weight: 700;
+        }
+
+        .circulo_score .rotulo_score {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        #btn_calcular_score {
+            background-color: var(--cor_secundaria_azul);
+            border-color: var(--cor_secundaria_azul);
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+        }
+
+        /* Estilos dos Modais */
+        .cabecalho_modal, .cabecalho_modal_login {
+            background-color: var(--cor_secundaria_azul);
+            color: var(--cor_primaria_amarelo);
+            border-bottom: 3px solid var(--cor_primaria_amarelo);
+        }
+
+        .conteudo_modal_cadastro, .conteudo_modal_login {
+            border: 1px solid var(--cor_secundaria_azul);
+            border-radius: 0.5rem;
+        }
+
+        .cabecalho_modal .btn-close, .cabecalho_modal_login .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        .corpo_modal .input-group-text, .corpo_modal_login .input-group-text {
+            background-color: var(--cor_secundaria_azul);
+            color: var(--cor_primaria_amarelo);
+            border-color: var(--cor_secundaria_azul);
+        }
+
+        .rodape_modal .botao_principal_modal, .rodape_modal_login .botao_principal_modal_login {
+            background-color: var(--cor_secundaria_azul);
+            border-color: var(--cor_secundaria_azul);
+            color: var(--cor_primaria_amarelo);
+            font-weight: bold;
+        }
+
+        .rodape_modal .botao_principal_modal:hover, .rodape_modal_login .botao_principal_modal_login:hover {
+            background-color: #001f33;
+            border-color: #001f33;
+            color: #FFFFFF;
+        }
+
+        .modal-content {
+            border-radius: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+        }
+
+        /* Estilos do Footer */
+        .rodape_principal {
+            background-color: var(--cor_secundaria_azul);
+            color: #f0f2f5;
+            padding: 4rem 0 2rem;
+            margin-top: 3rem;
+        }
+
+        .rodape_principal h5 {
+            color: var(--cor_primaria_amarelo);
+            margin-bottom: 1.5rem;
+        }
+
+        .lista_rodape {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .lista_rodape li a {
+            color: #f0f2f5;
+            text-decoration: none;
+            display: block;
+            padding: 0.3rem 0;
+            transition: color 0.3s ease, padding-left 0.3s ease;
+        }
+
+        .lista_rodape li a:hover {
+            color: var(--cor_primaria_amarelo);
+            padding-left: 5px;
+        }
+
+        .icones_rodape {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .icones_rodape a {
+            color: #fff;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .icones_rodape a:hover {
+            transform: scale(1.1);
+            color: var(--cor_primaria_amarelo);
+        }
+
+        .assinatura_rodape {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 2rem;
+            padding-top: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="fundo_amarelo border-bottom d-none d-lg-block">
+        <div class="container">
+            <nav class="nav justify-content-between small">
+                <div class="d-flex">
+                    <a class="nav-link texto_azul link_animado" href="#"><i class="bi bi-person me-1"></i>Para Você</a>
+                    <a class="nav-link texto_azul link_animado" href="#"><i class="bi bi-building me-1"></i>Para sua
+                        Empresa</a>
+                    <a class="nav-link texto_azul link_animado" href="#"><i class="bi bi-bank me-1"></i>Setor
+                        Público</a>
+                    <a class="nav-link texto_azul link_animado" href="#"><i class="bi bi-tree me-1"></i>Agronegócios</a>
+                </div>
+                <div class="d-flex">
+                    <a class="nav-link texto_azul link_animado" href="#"><i class="bi bi-question-circle me-1"></i>Ajuda</a>
+                    <a class="nav-link texto_azul link_animado" href="#rodape_principal"><i
+                            class="bi bi-universal-access me-1"></i>Acessibilidade</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <div class="fundo_azul shadow-sm">
+        <div class="container py-2 d-flex justify-content-between align-items-center">
+            <a href="#" class="text-decoration-none d-flex align-items-center gap-3">
+                <img src="https://placehold.co/120x60/ffffff/0033a0?text=Logo" alt="Logo Banco do Brasil" height="60">
+                <span class="fs-4 fw-bold d-none d-sm-inline texto_amarelo link_animado">Banco<br>do Brasil</span>
+            </a>
+            <div class="flex-grow-1 mx-4 d-none d-lg-block">
+                <div class="input-group">
+                    <input type="search" class="form-control" placeholder="O que você procura?">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2 text-nowrap">
+                    <img src="https://placehold.co/70x70/eeeeee/333333?text=User" alt="Foto do Perfil" width="70"
+                         height="70" class="rounded-circle">
+                    <span class="texto_amarelo fw-bold link_animado">Patricia<br>da Silva</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#modal_acesso_conta"><i class="bi bi-person-circle me-1"></i>Acessar
+                    </button>
+                    <button type="button" class="btn btn-sm fw-bold botao_amarelo" data-bs-toggle="modal"
+                            data-bs-target="#modal_nova_conta">Abra sua conta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg fundo_azul border-bottom navbar-dark">
+        <div class="container">
+            <a class="navbar-brand texto_amarelo" href="#">Análise de Crédito Inteligente</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"><span
+                    class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="main-nav">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle texto_amarelo" href="#" data-bs-toggle="dropdown"><i
+                                class="bi bi-box-seam me-1"></i>Produtos e Serviços</a>
+                        <ul class="dropdown-menu fundo_azul border-0 shadow-lg">
+                            <li><a class="dropdown-item texto_amarelo" href="#"><i class="bi bi-person-vcard me-2"></i>Contas</a>
+                            </li>
+                            <li><a class="dropdown-item texto_amarelo" href="#"><i class="bi bi-credit-card me-2"></i>Cartões</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle texto_amarelo" href="#" data-bs-toggle="dropdown"><i
+                                class="bi bi-stars me-1"></i>Vantagens</a>
+                        <ul class="dropdown-menu fundo_azul border-0 shadow-lg">
+                            <li><a class="dropdown-item texto_amarelo" href="#"><i class="bi bi-award me-2"></i>Programa
+                                de Pontos</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">Sistema de Análise de Crédito</h1>
+        <p class="lead">Preencha os dados para uma análise instantânea do seu score de crédito.</p>
+    </div>
+
+    <div class="cartao_principal">
+        <div class="row g-0">
+            <!-- Coluna do Formulário -->
+            <div class="col-lg-7">
+                <div class="secao_formulario">
+                    <h2 class="h4 mb-4">Informações do Cliente</h2>
+                    <form id="form_analise_credito" novalidate>
+                        <div class="mb-3">
+                            <label for="nome_cliente" class="form-label">Nome Completo</label>
+                            <input type="text" class="form-control" id="nome_cliente" required>
+                            <div class="invalid-feedback">Por favor, insira um nome válido.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cpf_cliente" class="form-label">CPF</label>
+                            <input type="text" class="form-control" id="cpf_cliente" required pattern="\d{11}"
+                                   placeholder="Apenas números">
+                            <div class="invalid-feedback">Por favor, insira um CPF válido com 11 dígitos.</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="renda_cliente" class="form-label">Renda Mensal (R$)</label>
+                                <input type="number" class="form-control" id="renda_cliente" required min="0">
+                                <div class="invalid-feedback">Insira um valor de renda válido.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="idade_cliente" class="form-label">Idade</label>
+                                <input type="number" class="form-control" id="idade_cliente" required min="18"
+                                       max="120">
+                                <div class="invalid-feedback">A idade deve ser entre 18 e 120 anos.</div>
+                            </div>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg" id="btn_calcular_score">Calcular
+                                Score
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Coluna do Resultado -->
+            <div class="col-lg-5">
+                <div class="secao_resultado text-center">
+                    <div id="resultado_inicial">
+                        <i class="bi bi-graph-up-arrow" style="font-size: 4rem; color: #ccc;"></i>
+                        <p class="text-muted mt-3">O resultado da sua análise aparecerá aqui.</p>
+                    </div>
+                    <div id="resultado_score" class="d-none">
+                        <div class="circulo_score">
+                            <span id="score_final" class="valor_score">0</span>
+                            <span id="score_texto" class="rotulo_score">Score</span>
+                        </div>
+                        <p id="score_descricao" class="mt-3 text-muted"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer id="rodape_principal" class="rodape_principal">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <img src="https://placehold.co/150x100/ffffff/0033a0?text=Logo" alt="Logo Banco do Brasil" class="mb-3"
+                     height="100">
+                <p>O Banco do Brasil está presente na vida de milhões de brasileiros, oferecendo soluções, crédito e
+                    apoio para tudo que você imaginar.</p>
+            </div>
+            <div class="col-lg-2 col-md-6 mb-4"><h5><i class="bi bi-compass me-2"></i>Navegação</h5>
+                <ul class="lista_rodape">
+                    <li><a href="#"><i class="bi bi-box-seam me-1"></i>Produtos e Serviços</a></li>
+                    <li><a href="#"><i class="bi bi-graph-up me-1"></i>Investimentos</a></li>
+                    <li><a href="#"><i class="bi bi-shield-check me-1"></i>Seguros</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-6 mb-4"><h5><i class="bi bi-info-circle me-2"></i>Ajuda</h5>
+                <ul class="lista_rodape">
+                    <li><a href="#"><i class="bi bi-headset me-1"></i>Atendimento</a></li>
+                    <li><a href="#"><i class="bi bi-telephone-inbound me-1"></i>SAC</a></li>
+                    <li><a href="#"><i class="bi bi-mic me-1"></i>Ouvidoria</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-6 mb-4"><h5><i class="bi bi-bank2 me-2"></i>Institucional</h5>
+                <ul class="lista_rodape">
+                    <li><a href="#"><i class="bi bi-info-square me-1"></i>Sobre Nós</a></li>
+                    <li><a href="#"><i class="bi bi-briefcase me-1"></i>Trabalhe Conosco</a></li>
+                    <li><a href="#"><i class="bi bi-newspaper me-1"></i>Imprensa</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-12 mb-4"><h5><i class="bi bi-share me-2"></i>Redes Sociais</h5>
+                <div class="icones_rodape"><a href="#" target="_blank"><i class="bi bi-facebook"></i></a><a href="#"
+                                                                                                            target="_blank"><i
+                        class="bi bi-instagram"></i></a><a href="#" target="_blank"><i
+                        class="bi bi-twitter-x"></i></a><a href="#" target="_blank"><i class="bi bi-linkedin"></i></a><a
+                        href="#" target="_blank"><i class="bi bi-youtube"></i></a></div>
+            </div>
+        </div>
+        <div class="assinatura_rodape text-center"><p><i class="bi bi-c-circle me-1"></i>&copy; 2025 Banco do Brasil
+            S.A. CNPJ: 00.000.000/0001-91</p></div>
+    </div>
+</footer>
+
+<!-- MODAIS -->
+<div class="modal fade" id="modal_acesso_conta" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content conteudo_modal_login">
+            <div class="modal-header cabecalho_modal_login"><h1 class="modal-title fs-5" id="titulo_modal_login"><i
+                    class="bi bi-person-circle me-2"></i>Acessar Conta</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body corpo_modal_login p-4">
+                <div id="msg_login_sucesso" class="alert alert-success d-none" role="alert">Login efetuado com
+                    sucesso!
+                </div>
+                <form id="formulario_login" class="needs-validation" novalidate>
+                    <div class="mb-3"><label for="campo_agencia" class="form-label">Agência</label>
+                        <div class="input-group"><span class="input-group-text"><i class="bi bi-bank"></i></span><input
+                                type="text" class="form-control" id="campo_agencia" placeholder="0000" required>
+                            <div class="invalid-feedback">A agência é obrigatória.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3"><label for="campo_conta" class="form-label">Conta Corrente</label>
+                        <div class="input-group"><span class="input-group-text"><i
+                                class="bi bi-person-vcard"></i></span><input type="text" class="form-control"
+                                                                             id="campo_conta" placeholder="00000-0"
+                                                                             required>
+                            <div class="invalid-feedback">A conta é obrigatória.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3"><label for="campo_senha_login" class="form-label">Senha</label>
+                        <div class="input-group"><span class="input-group-text"><i
+                                class="bi bi-lock-fill"></i></span><input type="password" class="form-control"
+                                                                          id="campo_senha_login"
+                                                                          placeholder="Sua senha de 6 dígitos" required>
+                            <div class="invalid-feedback">A senha é obrigatória.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn fw-bold botao_principal_modal_login"><i
+                                class="bi bi-box-arrow-in-right me-2"></i>Entrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal_nova_conta" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content conteudo_modal_cadastro">
+            <div class="modal-header cabecalho_modal"><h1 class="modal-title fs-5" id="titulo_modal_cadastro"><i
+                    class="bi bi-person-plus-fill me-2"></i>Abra sua Conta Digital</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body corpo_modal p-4">
+                <div id="msg_cadastro_sucesso" class="alert alert-success d-none" role="alert">Cadastro realizado com
+                    sucesso! Bem-vindo(a).
+                </div>
+                <form id="formulario_nova_conta" class="needs-validation" novalidate>
+                    <div class="mb-3"><label for="campo_nome_completo" class="form-label">Nome Completo</label>
+                        <div class="input-group"><span class="input-group-text"><i
+                                class="bi bi-person"></i></span><input type="text" class="form-control"
+                                                                       id="campo_nome_completo"
+                                                                       placeholder="Digite seu nome completo" required>
+                            <div class="invalid-feedback">O nome completo é obrigatório.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3"><label for="campo_cpf" class="form-label">CPF</label>
+                        <div class="input-group"><span class="input-group-text"><i
+                                class="bi bi-person-vcard"></i></span><input type="text" class="form-control"
+                                                                             id="campo_cpf" placeholder="000.000.000-00"
+                                                                             required>
+                            <div class="invalid-feedback">O CPF é obrigatório.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3"><label for="campo_email" class="form-label">E-mail</label>
+                        <div class="input-group"><span class="input-group-text"><i
+                                class="bi bi-envelope"></i></span><input type="email" class="form-control"
+                                                                         id="campo_email"
+                                                                         placeholder="seu.email@exemplo.com" required>
+                            <div class="invalid-feedback">Por favor, insira um email válido.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3"><label for="campo_senha" class="form-label">Crie uma Senha</label>
+                        <div class="input-group"><span class="input-group-text"><i class="bi bi-lock"></i></span><input
+                                type="password" class="form-control" id="campo_senha" placeholder="Senha forte" required
+                                minlength="6">
+                            <div class="invalid-feedback">A senha deve ter no mínimo 6 caracteres.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn fw-bold botao_principal_modal"><i
+                                class="bi bi-check-lg me-2"></i>Criar Conta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const $form_analise = $('#form_analise_credito');
+
+        $form_analise.on('submit', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (this.checkValidity() === false) {
+                $(this).addClass('was-validated');
+                return;
+            }
+
+            $(this).removeClass('was-validated');
+
+            const renda = parseFloat($('#renda_cliente').val());
+            const idade = parseInt($('#idade_cliente').val());
+
+            const score = calcular_score(renda, idade);
+            exibir_resultado(score);
+        });
+
+        function calcular_score(renda, idade) {
+            let score_base = 300;
+            if (renda <= 2000) score_base += 50;
+            else if (renda <= 5000) score_base += 150;
+            else if (renda <= 10000) score_base += 250;
+            else score_base += 350;
+
+            if (idade >= 18 && idade <= 25) score_base += 100;
+            else if (idade >= 26 && idade <= 45) score_base += 300;
+            else if (idade >= 46 && idade <= 60) score_base += 200;
+            else score_base += 150;
+
+            let variacao = Math.floor(Math.random() * 51) - 25;
+            let score_final = score_base + variacao;
+            return Math.min(Math.max(score_final, 0), 1000);
+        }
+
+        function exibir_resultado(score) {
+            let texto, cor, descricao;
+            if (score < 300) {
+                texto = "Baixo";
+                cor = 'var(--score-bad)';
+                descricao = "Alto risco de inadimplência. Crédito provavelmente será negado.";
+            } else if (score < 600) {
+                texto = "Regular";
+                cor = 'var(--score-regular)';
+                descricao = "Risco moderado. Acesso a crédito com taxas de juros mais altas.";
+            } else if (score < 800) {
+                texto = "Bom";
+                cor = 'var(--score-good)';
+                descricao = "Bom perfil de crédito. Acesso a boas condições de financiamento.";
+            } else {
+                texto = "Excelente";
+                cor = 'var(--score-excellent)';
+                descricao = "Perfil de crédito exemplar. Acesso às melhores condições do mercado.";
+            }
+
+            $('#resultado_inicial').addClass('d-none');
+            $('#resultado_score').removeClass('d-none');
+            $('#score_final').text(score);
+            $('#score_texto').text(texto);
+            $('#score_descricao').text(descricao);
+            $('.circulo_score').css('background-color', cor);
+        }
+
+        $('#cpf_cliente').on('input', function () {
+            this.value = this.value.replace(/\D/g, '');
+        });
+
+        // --- LÓGICA DOS MODAIS DE LOGIN E CADASTRO ---
+        const $form_login = $('#formulario_login'), $form_cadastro = $('#formulario_nova_conta'),
+            modal_login = new bootstrap.Modal($('#modal_acesso_conta')[0]),
+            modal_cadastro = new bootstrap.Modal($('#modal_nova_conta')[0]);
+        $form_login.on('submit', function (event) {
+            event.preventDefault();
+            if (!this.checkValidity()) {
+                event.stopPropagation();
+            } else {
+                $('#msg_login_sucesso').removeClass('d-none');
+                setTimeout(() => {
+                    modal_login.hide();
+                    $(this).removeClass('was-validated').trigger('reset');
+                    $('#msg_login_sucesso').addClass('d-none');
+                }, 2000);
+            }
+            $(this).addClass('was-validated');
+        });
+        $form_cadastro.on('submit', function (event) {
+            event.preventDefault();
+            if (!this.checkValidity()) {
+                event.stopPropagation();
+            } else {
+                $('#msg_cadastro_sucesso').removeClass('d-none');
+                setTimeout(() => {
+                    modal_cadastro.hide();
+                    $(this).removeClass('was-validated').trigger('reset');
+                    $('#msg_cadastro_sucesso').addClass('d-none');
+                }, 2000);
+            }
+            $(this).addClass('was-validated');
+        });
+        $('#modal_acesso_conta, #modal_nova_conta').on('hidden.bs.modal', function () {
+            $(this).find('form').removeClass('was-validated').trigger('reset');
+        });
+    });
+</script>
+</body>
+</html>
+
